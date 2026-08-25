@@ -1,0 +1,138 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --red: #c62828;
+  --white: #ffffff;
+  --text-muted: #b8c4b5;
+}
+
+body {
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+  background: #1a1a1a;
+  color: var(--white);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.app-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.controls {
+  background: #252525;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: 24px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.control-group input[type='text'],
+.control-group input[type='file'],
+.control-group textarea {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.control-group input[type='file'] {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.control-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.download-btn {
+  background: var(--red);
+  border: none;
+  border-radius: 8px;
+  color: var(--white);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 8px;
+  padding: 14px 20px;
+  transition: background 0.2s;
+}
+
+.download-btn:hover {
+  background: #a31f1f;
+}
+
+.download-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.preview-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+  padding: 8px;
+}
+
+.preview-canvas {
+  width: 627px;
+  height: 627px;
+  flex-shrink: 0;
+}
