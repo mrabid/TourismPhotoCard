@@ -30,11 +30,14 @@ Output is in the `dist/` folder.
 
 The workflow in `.github/workflows/deploy.yml` builds and deploys on every push to `main`.
 
-**One-time setup (required — fixes the deploy 404 error):**
+**One-time setup:**
 
-1. Open [Settings → Pages](https://github.com/mrabid/PRB-POST-News-Photo-Card/settings/pages) for this repo.
-2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-3. Re-run the failed workflow (Actions tab → latest run → **Re-run all jobs**) or push any commit to `main`.
+1. Open [Settings → Pages](https://github.com/mrabid/PRB-POST-News-Photo-Card/settings/pages).
+2. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+3. Set **Branch** to `gh-pages` and folder to `/ (root)`.
+4. Save, then push to `main` (or re-run the deploy workflow).
+
+The workflow builds with the correct `/PRB-POST-News-Photo-Card/` base path and publishes `dist/` to the `gh-pages` branch.
 
 Live URL: `https://mrabid.github.io/PRB-POST-News-Photo-Card/`
 

@@ -243,7 +243,7 @@ async function init() {
   els.dateText.value = state.date;
 
   await loadFonts();
-  templateImg = await loadImage('/PRB-NEWS-Tempated.png');
+  templateImg = await loadImage(`${import.meta.env.BASE_URL}PRB-NEWS-Tempated.png`);
   updatePreview();
 
   bindInput(els.badgeText, 'badge');
