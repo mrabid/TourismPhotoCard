@@ -30,7 +30,7 @@ Output is in the `dist/` folder.
 
 The workflow in `.github/workflows/deploy.yml` builds and deploys on every push to `main`.
 
-The workflow builds with the correct `/PRB-POST-News-Photo-Card/` base path, publishes `dist/` to the `gh-pages` branch, and automatically points GitHub Pages at that branch.
+Edit `index.source.html` for development. The workflow builds with the correct `/PRB-POST-News-Photo-Card/` base path and publishes the built `index.html`, `assets/`, and template PNG to the repository root for GitHub Pages.
 
 Live URL: `https://mrabid.github.io/PRB-POST-News-Photo-Card/`
 

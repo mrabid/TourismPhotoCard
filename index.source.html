@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PRB POST — News Photo Card Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;600;700&family=Noto+Sans+Bengali:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <h1>PRB POST News Photo Card</h1>
+        <p>ছবি আপলোড করুন, টেক্সট লিখুন এবং ডাউনলোড করুন</p>
+      </header>
+
+      <div class="workspace">
+        <aside class="controls">
+          <div class="control-group">
+            <label for="photoInput">ছবি আপলোড</label>
+            <input type="file" id="photoInput" accept="image/*" />
+          </div>
+
+          <div class="control-group">
+            <label for="badgeText">ব্যাজ টেক্সট (লাল)</label>
+            <input type="text" id="badgeText" value="প্রশ্নফাঁসের" />
+          </div>
+
+          <div class="control-group">
+            <label for="dateText">তারিখ</label>
+            <input type="text" id="dateText" />
+          </div>
+
+          <div class="control-group">
+            <label for="headline1">শিরোনাম লাইন ১ (সাদা)</label>
+            <textarea id="headline1" rows="2">প্রশ্নফাঁসের সুরাহা চেয়ে</textarea>
+          </div>
+
+          <div class="control-group">
+            <label for="headline2">শিরোনাম লাইন ২ (হলুদ)</label>
+            <textarea id="headline2" rows="2">দিল্লির রাজপথে বিক্ষোভকারীরা</textarea>
+          </div>
+
+          <button type="button" id="downloadBtn" class="download-btn">
+            PNG ডাউনলোড
+          </button>
+        </aside>
+
+        <main class="preview-area">
+          <canvas id="previewCanvas" class="preview-canvas" width="627" height="627"></canvas>
+          <canvas id="exportCanvas" hidden width="1254" height="1254"></canvas>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -17,6 +15,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,25 +31,16 @@ jobs:
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
 
-      - name: Publish built site to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-
-      - name: Point GitHub Pages at gh-pages branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish built site to main branch root
         run: |
-          set -e
-          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages"
-          AUTH="Authorization: Bearer ${GH_TOKEN}"
-          ACCEPT="Accept: application/vnd.github+json"
-          BODY='{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
+          cp dist/index.source.html index.html
+          rm -rf assets
+          cp -r dist/assets assets
+          cp dist/PRB-NEWS-Tempated.png PRB-NEWS-Tempated.png
+          cp dist/.nojekyll .nojekyll
 
-          STATUS=$(curl -s -o /tmp/pages.json -w "%{http_code}" -H "$AUTH" -H "$ACCEPT" "$API")
-          if [ "$STATUS" = "404" ]; then
-            curl -s -X POST -H "$AUTH" -H "$ACCEPT" "$API" -d "$BODY"
-          else
-            curl -s -X PUT -H "$AUTH" -H "$ACCEPT" "$API" -d "$BODY"
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets PRB-NEWS-Tempated.png .nojekyll
+          git diff --staged --quiet || git commit -m "Deploy built site to GitHub Pages [skip ci]"
+          git push
