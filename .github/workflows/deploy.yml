@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -30,8 +32,25 @@ jobs:
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
 
-      - name: Deploy to gh-pages branch
+      - name: Publish built site to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+      - name: Point GitHub Pages at gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages"
+          AUTH="Authorization: Bearer ${GH_TOKEN}"
+          ACCEPT="Accept: application/vnd.github+json"
+          BODY='{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
+
+          STATUS=$(curl -s -o /tmp/pages.json -w "%{http_code}" -H "$AUTH" -H "$ACCEPT" "$API")
+          if [ "$STATUS" = "404" ]; then
+            curl -s -X POST -H "$AUTH" -H "$ACCEPT" "$API" -d "$BODY"
+          else
+            curl -s -X PUT -H "$AUTH" -H "$ACCEPT" "$API" -d "$BODY"
+          fi
