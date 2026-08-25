@@ -18,18 +18,12 @@ const LAYOUT = {
   headline2: { maxWidth: 1100, lineHeight: 66, size: 62, gap: 22 },
 };
 
-const BENGALI_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-const BENGALI_MONTHS = [
-  'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
-];
-
 const state = {
   photo: null,
-  badge: 'প্রশ্নফাঁসের',
+  badge: '',
   date: '',
-  headline1: 'প্রশ্নফাঁসের সুরাহা চেয়ে',
-  headline2: 'দিল্লির রাজপথে বিক্ষোভকারীরা',
+  headline1: '',
+  headline2: '',
 };
 
 let templateImg = null;
@@ -44,18 +38,6 @@ const els = {
   previewCanvas: document.getElementById('previewCanvas'),
   exportCanvas: document.getElementById('exportCanvas'),
 };
-
-function toBengaliNumber(num) {
-  return String(num)
-    .split('')
-    .map((d) => BENGALI_DIGITS[parseInt(d, 10)] ?? d)
-    .join('');
-}
-
-function getTodayBengaliDate() {
-  const now = new Date();
-  return `${toBengaliNumber(now.getDate())} ${BENGALI_MONTHS[now.getMonth()]}, ${toBengaliNumber(now.getFullYear())}`;
-}
 
 async function loadFonts() {
   const loads = [
@@ -239,9 +221,6 @@ function bindInput(input, key) {
 }
 
 async function init() {
-  state.date = getTodayBengaliDate();
-  els.dateText.value = state.date;
-
   await loadFonts();
   templateImg = await loadImage(`${import.meta.env.BASE_URL}PRB-NEWS-Tempated.png`);
   updatePreview();
