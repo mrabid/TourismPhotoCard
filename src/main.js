@@ -15,6 +15,7 @@ const NAME = {
   h: 70,
   size: 32,
   minSize: 18,
+  yOffset: 8,
   color: '#ffffff',
 };
 
@@ -125,7 +126,7 @@ function drawName(ctx) {
   ctx.fillStyle = NAME.color;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-  ctx.fillText(text, snap(NAME.x + NAME.w / 2), snap(NAME.y + NAME.h / 2));
+  ctx.fillText(text, snap(NAME.x + NAME.w / 2), snap(NAME.y + NAME.h / 2 + NAME.yOffset));
   ctx.textAlign = 'left';
 }
 
