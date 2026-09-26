@@ -132,7 +132,7 @@ body {
 }
 
 .preview-canvas {
-  width: 627px;
-  height: 627px;
+  width: 600px;
+  height: 600px;
   flex-shrink: 0;
 }

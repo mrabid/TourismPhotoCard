@@ -1,52 +1,43 @@
 import './style.css';
 
-const CARD_SIZE = 1254;
-const PREVIEW_SIZE = 627;
+const CARD_SIZE = 1200;
+const PREVIEW_SIZE = 600;
 const FONT = '"Hind Siliguri", "Noto Sans Bengali", sans-serif';
 
-/** Image input space — photo sits behind PNG template */
-const PHOTO_SLOT = { x: 35, y: 177, w: 1183, h: 714, radius: 22 };
+/** Photo cutout — sits behind tou.png transparent window */
+const PHOTO_SLOT = { x: 427, y: 425, w: 348, h: 413, radius: 30 };
 
-/** Text positions — lower in green/footer zone, on top of PNG */
-const SLOT_BOTTOM = PHOTO_SLOT.y + PHOTO_SLOT.h;
-const TEXT_CENTER_X = PHOTO_SLOT.x + PHOTO_SLOT.w / 2;
-
-const LAYOUT = {
-  badge: { x: 72, y: SLOT_BOTTOM - 44, h: 34, size: 44 },
-  date: { x: 1120, y: SLOT_BOTTOM - 20, size: 29 },
-  headline1: { y: SLOT_BOTTOM + 58, maxWidth: 1100, lineHeight: 68, size: 64 },
-  headline2: { maxWidth: 1100, lineHeight: 66, size: 62, gap: 22 },
+/** Name text — centered on the red pill below the photo */
+const NAME = {
+  x: 309,
+  y: 869,
+  w: 586,
+  h: 70,
+  size: 32,
+  minSize: 18,
+  color: '#ffffff',
 };
 
 const state = {
   photo: null,
-  badge: '',
-  date: '',
-  headline1: '',
-  headline2: '',
+  name: '',
 };
 
 let templateImg = null;
 
 const els = {
   photoInput: document.getElementById('photoInput'),
-  badgeText: document.getElementById('badgeText'),
-  dateText: document.getElementById('dateText'),
-  headline1: document.getElementById('headline1'),
-  headline2: document.getElementById('headline2'),
+  nameText: document.getElementById('nameText'),
   downloadBtn: document.getElementById('downloadBtn'),
   previewCanvas: document.getElementById('previewCanvas'),
   exportCanvas: document.getElementById('exportCanvas'),
 };
 
 async function loadFonts() {
-  const loads = [
-    document.fonts.load(`700 44px ${FONT}`),
-    document.fonts.load(`600 29px ${FONT}`),
-    document.fonts.load(`800 64px ${FONT}`),
-    document.fonts.load(`700 62px ${FONT}`),
-  ];
-  await Promise.all(loads);
+  await Promise.all([
+    document.fonts.load(`700 ${NAME.size}px ${FONT}`),
+    document.fonts.load(`700 ${NAME.minSize}px ${FONT}`),
+  ]);
   await document.fonts.ready;
 }
 
@@ -75,14 +66,16 @@ function setupContext(canvas, displaySize) {
   return ctx;
 }
 
-function roundRectTop(ctx, x, y, w, h, r) {
-  const radius = Math.min(r, w / 2, h);
+function roundRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + w - radius, y);
   ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-  ctx.lineTo(x + w, y + h);
-  ctx.lineTo(x, y + h);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
@@ -106,64 +99,55 @@ function drawCoverImage(ctx, img, x, y, w, h) {
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 }
 
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(/\s+/);
-  const lines = [];
-  let line = '';
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = test;
-    }
-  }
-  if (line) lines.push(line);
-  return lines;
-}
-
 function snap(value) {
   return Math.round(value) + 0.5;
 }
 
-function drawTextContent(ctx) {
-  const { badge, date, headline1, headline2 } = LAYOUT;
-
-  const badgeText = state.badge.trim();
-  if (badgeText) {
-    ctx.font = `700 ${badge.size}px ${FONT}`;
-    ctx.fillStyle = '#ffffff';
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left';
-    ctx.fillText(badgeText, snap(badge.x), snap(badge.y + badge.h / 2));
+function fitFontSize(ctx, text, maxWidth, maxSize, minSize) {
+  let size = maxSize;
+  while (size > minSize) {
+    ctx.font = `700 ${size}px ${FONT}`;
+    if (ctx.measureText(text).width <= maxWidth) return size;
+    size -= 1;
   }
+  return minSize;
+}
 
-  ctx.font = `600 ${date.size}px ${FONT}`;
-  ctx.fillStyle = '#ffffff';
-  ctx.textBaseline = 'top';
-  ctx.textAlign = 'right';
-  ctx.fillText(state.date, snap(date.x), snap(date.y));
+function drawName(ctx) {
+  const text = state.name.trim();
+  if (!text) return;
 
+  const padding = 48;
+  const maxWidth = NAME.w - padding * 2;
+  const fontSize = fitFontSize(ctx, text, maxWidth, NAME.size, NAME.minSize);
+
+  ctx.font = `700 ${fontSize}px ${FONT}`;
+  ctx.fillStyle = NAME.color;
+  ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
-  ctx.font = `800 ${headline1.size}px ${FONT}`;
-  let y = headline1.y;
-  for (const line of wrapText(ctx, state.headline1, headline1.maxWidth)) {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(line, snap(TEXT_CENTER_X), snap(y));
-    y += headline1.lineHeight;
-  }
-
-  y += headline2.gap;
-
-  ctx.font = `700 ${headline2.size}px ${FONT}`;
-  for (const line of wrapText(ctx, state.headline2, headline2.maxWidth)) {
-    ctx.fillStyle = '#f5c400';
-    ctx.fillText(line, snap(TEXT_CENTER_X), snap(y));
-    y += headline2.lineHeight;
-  }
-
+  ctx.fillText(text, snap(NAME.x + NAME.w / 2), snap(NAME.y + NAME.h / 2));
   ctx.textAlign = 'left';
+}
+
+function renderCard(ctx) {
+  ctx.clearRect(0, 0, CARD_SIZE, CARD_SIZE);
+
+  if (state.photo) {
+    ctx.save();
+    roundRect(ctx, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h, PHOTO_SLOT.radius);
+    ctx.clip();
+    drawCoverImage(ctx, state.photo, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#1a1a1a';
+    ctx.save();
+    roundRect(ctx, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h, PHOTO_SLOT.radius);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.drawImage(templateImg, 0, 0, CARD_SIZE, CARD_SIZE);
+  drawName(ctx);
 }
 
 function renderExport(canvas) {
@@ -175,60 +159,24 @@ function renderExport(canvas) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.clearRect(0, 0, CARD_SIZE, CARD_SIZE);
-
-  if (state.photo) {
-    ctx.save();
-    roundRectTop(ctx, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h, PHOTO_SLOT.radius);
-    ctx.clip();
-    drawCoverImage(ctx, state.photo, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h);
-  }
-
-  ctx.drawImage(templateImg, 0, 0, CARD_SIZE, CARD_SIZE);
-  drawTextContent(ctx);
+  renderCard(ctx);
 }
 
 function updatePreview() {
   if (!templateImg) return;
-
   const ctx = setupContext(els.previewCanvas, PREVIEW_SIZE);
-  ctx.clearRect(0, 0, CARD_SIZE, CARD_SIZE);
-
-  if (state.photo) {
-    ctx.save();
-    roundRectTop(ctx, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h, PHOTO_SLOT.radius);
-    ctx.clip();
-    drawCoverImage(ctx, state.photo, PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(PHOTO_SLOT.x, PHOTO_SLOT.y, PHOTO_SLOT.w, PHOTO_SLOT.h);
-  }
-
-  ctx.drawImage(templateImg, 0, 0, CARD_SIZE, CARD_SIZE);
-  drawTextContent(ctx);
-}
-
-function bindInput(input, key) {
-  input.addEventListener('input', () => {
-    state[key] = input.value;
-    updatePreview();
-  });
+  renderCard(ctx);
 }
 
 async function init() {
   await loadFonts();
-  templateImg = await loadImage(`${import.meta.env.BASE_URL}PRB-NEWS-Tempated.png`);
+  templateImg = await loadImage(`${import.meta.env.BASE_URL}tou.png`);
   updatePreview();
 
-  bindInput(els.badgeText, 'badge');
-  bindInput(els.dateText, 'date');
-  bindInput(els.headline1, 'headline1');
-  bindInput(els.headline2, 'headline2');
+  els.nameText.addEventListener('input', () => {
+    state.name = els.nameText.value;
+    updatePreview();
+  });
 
   els.photoInput.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
@@ -244,7 +192,7 @@ async function init() {
       await loadFonts();
       renderExport(els.exportCanvas);
       const link = document.createElement('a');
-      link.download = `prb-news-card-${Date.now()}.png`;
+      link.download = `tourism-photo-card-${Date.now()}.png`;
       link.href = els.exportCanvas.toDataURL('image/png');
       link.click();
     } catch (err) {
